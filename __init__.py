@@ -1,1 +1,1 @@
-from .io import atomic_write
+from .atomicio import atomic_write
