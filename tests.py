@@ -18,6 +18,7 @@ class AtomicWriteTests(TestCase):
             fp = os.path.join(tmp, "asdf.txt")
 
             with atomic_write(fp, "w") as f:
+                print("in test for atomic_write")
                 assert not os.path.exists(fp)
                 tmpfile = f.name
                 f.write("asdf")
