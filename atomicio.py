@@ -13,17 +13,26 @@ from atomicwrites import atomic_write as _backend_writer, AtomicWriter
 
 
 class SuffixWriter(AtomicWriter):
+    """ Extension of AtomicWriter that preserves file extension when creating the temp file."""
     def __init__(self, path, mode='w', overwrite=False,
                  **open_kwargs):
         self._path = path
         super().__init__(path, mode, overwrite, **open_kwargs)
 
     def get_fileobject(self, mydir=None, **kwargs):
+        """Override of AtomiWrite's get_fileobject method.
+        What I want to do here is set the suffix and then call into AtomicWrite's
+        implementation, but that is not currently working. Throws an AttributeError __enter__
+        exception.
+        """
         # def __enter__(self):
         #     return self
 
         temp_suffix = ''.join(Path(self._path).suffixes)
+        # below is what I really want to be doing
         # super().get_fileobject(suffix=temp_suffix, **kwargs)
+
+        # but to get something working, re-implementing that same code here:
         '''Return the temporary file to use.'''
         prefix = 'tmp'
         if mydir is None:
