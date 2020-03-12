@@ -25,28 +25,10 @@ class SuffixWriter(AtomicWriter):
         implementation, but that is not currently working. Throws an AttributeError __enter__
         exception.
         """
-        # def __enter__(self):
-        #     return self
 
         temp_suffix = ''.join(Path(self._path).suffixes)
-        # below is what I really want to be doing
-        # super().get_fileobject(suffix=temp_suffix, **kwargs)
+        return super().get_fileobject(suffix=temp_suffix, **kwargs)
 
-        # but to get something working, re-implementing that same code here:
-        '''Return the temporary file to use.'''
-        prefix = 'tmp'
-        if mydir is None:
-            mydir = os.path.normpath(os.path.dirname(self._path))
-        descriptor, name = tempfile.mkstemp(suffix=temp_suffix, prefix=prefix,
-                                            dir=mydir)
-
-        # io.open() will take either the descriptor or the name, but we need
-        # the name later for commit()/replace_atomic() and couldn't find a way
-        # to get the filename from the descriptor.
-        os.close(descriptor)
-        kwargs['mode'] = self._mode
-        kwargs['file'] = name
-        return io.open(**kwargs)
 
 
 # Override functions like this
@@ -67,9 +49,7 @@ def atomic_write(file, mode='w', as_file=True, new_default='asdf', **kwargs):
             raise
 
         finally:
-            pass
-            # print("in atomic_write_finally")
-            # remove_temp_file(file)
+            remove_temp_file(file)
 
 
 def remove_temp_file(file_path):
