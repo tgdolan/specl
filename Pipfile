@@ -9,6 +9,8 @@ pytest-cov = "*"
 
 [packages]
 pyyaml = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"
+

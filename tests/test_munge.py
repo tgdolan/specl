@@ -4,8 +4,8 @@
 
 import pytest
 from unittest.mock import patch, mock_open
-
-from munge import read_spec
+from pandas import DataFrame, read_csv
+from munge import read_spec, read_data
 
 
 @pytest.fixture
@@ -72,6 +72,11 @@ def basic_spec_0():
     """
 
 
+@pytest.fixture
+def empty_csv():
+    return ''
+
+
 def test_that_load_spec_returns_empty_dict_for_empty_spec(empty_spec):
     with patch('builtins.open', new_callable=mock_open, read_data=empty_spec):
         spec = read_spec('fake/file.yaml')
@@ -95,5 +100,14 @@ def test_that_load_spec_raises_valueerror_for_invalid_spec(basic_spec_0):
             spec = read_spec('fake/file.yaml')
 
     assert "invalid spec" in str(spec_error.value).lower()
+
+
+def test_that_read_data_returns_data_frame(tmpdir):
+    p = tmpdir.mkdir("sub").join("hello.csv")
+    p.write("id,color,wheels\n1,blue,4\n2,red,2")
+    spec = {'input': {'file': p.strpath}}
+    df = read_data(spec)
+
+    assert df.shape[1] == 3
 
 

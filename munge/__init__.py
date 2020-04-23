@@ -5,4 +5,4 @@ __email__ = 'tgdolan@gmail.com'
 __version__ = '0.1.0'
 
 # __all__ = ['munge']
-from .munge import read_spec
+from .munge import read_spec, read_data
