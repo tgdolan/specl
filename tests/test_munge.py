@@ -22,13 +22,7 @@ cities:
   - Trnava
   - Moldava
   - Trencin
----
-companies:
-  - Eset
-  - Slovnaft
-  - Duslo Sala
-  - Matador Puchov
-    """
+"""
 
 
 @pytest.fixture

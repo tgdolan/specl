@@ -1,5 +1,5 @@
 """Main module."""
-from yaml import load_all, FullLoader
+from yaml import load, load_all, FullLoader
 from yaml.scanner import ScannerError
 
 
@@ -9,9 +9,9 @@ def read_spec(path: str) -> dict:
     data munging functions."""
     with open(path) as yaml_spec:
         try:
-            spec = load_all(yaml_spec, Loader=FullLoader)
+            spec = load(yaml_spec, Loader=FullLoader)
 
         except ScannerError as scan_error:
             raise ValueError(f'Invalid spec found at: {path}')
 
-    return spec if type(spec) == 'dict' else {}
+    return spec if spec else {}
