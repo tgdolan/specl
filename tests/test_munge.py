@@ -6,7 +6,7 @@ from functools import partial
 import pytest
 from unittest.mock import patch, mock_open
 
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis.strategies import sampled_from
 from hypothesis.extra import pandas as hpd
 from pandas import read_csv
@@ -23,8 +23,8 @@ def write_funcs():
     return {'.csv': pdf.to_csv,
             '.xls': pdf.to_excel,
             '.xlsx': pdf.to_excel,
-            # '.parquet': partial(pdf.to_parquet, compression='UNCOMPRESSED')
-           }
+            '.parquet': partial(pdf.to_parquet, compression='UNCOMPRESSED')
+            }
 
 
 @pytest.fixture
@@ -131,9 +131,30 @@ def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
     # using make_numbered_dir to avoid path collisions when running test for each
     # hypothesis-generated data frame.
     p = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
-    # TODO: Plug in dict for write_funcs
     write_funcs[ext](df, p.strpath)
     spec = {'input': {'file': p.strpath}}
+    df_in = read_data(spec)
+
+    # TODO: Figure out why hypothesis DF shape not equal to Pandas when read from csv
+    assert df_in.shape[1] >= expected
+
+
+@settings(deadline=None)
+@given(data_frames(columns=columns("A B C".split(), dtype=int), index=hpd.range_indexes()),
+       sampled_from(['.parquet']))
+def test_that_read_data_returns_data_frame_parquet(tmpdir, df, ext):
+    print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
+
+    expected = df.shape[1]
+    file_name = str(f'test{time.time()}{ext}')
+    # using make_numbered_dir to avoid path collisions when running test for each
+    # hypothesis-generated data frame.
+
+    # p = tmpdir.make_numbered_dir().join(file_name)
+    # write_funcs[ext](df, p.strpath)
+    with open(file_name, mode='w') as f:
+        pdf.to_parquet(df, f.name, compression='UNCOMPRESSED')
+    spec = {'input': {'file': file_name}}
     df_in = read_data(spec)
 
     # TODO: Figure out why hypothesis DF shape not equal to Pandas when read from csv

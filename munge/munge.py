@@ -38,7 +38,7 @@ def read_data(spec: Dict) -> DataFrame:
     handles both .csv and .parquet."""
 
     path = spec['input']['file']
-    ext = ''.join(Path(path).suffixes)
+    ext = Path(path).suffix
     kwargs = {}
     # TODO get extension from path and use as subscript below
     return read_funcs[ext](path, **kwargs)
