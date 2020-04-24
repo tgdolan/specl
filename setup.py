@@ -11,8 +11,12 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'pandas'
-    'pyyaml'
+    'fastparquet',
+    'openpyxl',
+    'pandas',
+    'pyyaml',
+    'xlrd',
+    'xlwt'
 ]
 
 setup_requirements = ['pytest-runner', ]
