@@ -1,9 +1,15 @@
 """Main module."""
 from typing import Dict, Callable
+from pathlib import Path
 
 from yaml import load, load_all, FullLoader
 from yaml.scanner import ScannerError
-from pandas import DataFrame, read_csv
+from pandas import DataFrame, read_csv, read_excel, read_parquet
+
+read_funcs = {'.csv': read_csv,
+              '.xls': read_excel,
+              '.xlsx': read_excel,
+              '.parquet': read_parquet}
 
 
 def data_read_function(path: str) -> Callable:
@@ -32,4 +38,7 @@ def read_data(spec: Dict) -> DataFrame:
     handles both .csv and .parquet."""
 
     path = spec['input']['file']
-    return read_csv(path)
+    ext = ''.join(Path(path).suffixes)
+    kwargs = {}
+    # TODO get extension from path and use as subscript below
+    return read_funcs[ext](path, **kwargs)

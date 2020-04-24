@@ -1,20 +1,30 @@
 #!/usr/bin/env python
 
 """Tests for `munge` package."""
+from functools import partial
 
 import pytest
 from unittest.mock import patch, mock_open
 
 from hypothesis import given
+from hypothesis.strategies import sampled_from
 from hypothesis.extra import pandas as hpd
 from pandas import read_csv
 from pandas import DataFrame as pdf
+
 import time
-
-
 
 from hypothesis.extra.pandas import columns, data_frames
 from munge import read_spec, read_data
+
+
+@pytest.fixture
+def write_funcs():
+    return {'.csv': pdf.to_csv,
+            '.xls': pdf.to_excel,
+            '.xlsx': pdf.to_excel,
+            # '.parquet': partial(pdf.to_parquet, compression='UNCOMPRESSED')
+           }
 
 
 @pytest.fixture
@@ -111,16 +121,18 @@ def test_that_load_spec_raises_valueerror_for_invalid_spec(basic_spec_0):
     assert "invalid spec" in str(spec_error.value).lower()
 
 
-@given(data_frames(columns=columns("A B C".split(), dtype=int), index=hpd.range_indexes()))
-def test_that_read_data_returns_data_frame(tmpdir, df):
-    # print(f'generated dataframe has shape of: {df.shape}')
+@given(data_frames(columns=columns("A B C".split(), dtype=int), index=hpd.range_indexes()),
+       sampled_from(['.csv', '.xls', '.xlsx']))
+def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
+    print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
 
     expected = df.shape[1]
 
     # using make_numbered_dir to avoid path collisions when running test for each
     # hypothesis-generated data frame.
-    p = tmpdir.make_numbered_dir().join('test.csv')
-    pdf.to_csv(df, p.strpath)
+    p = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
+    # TODO: Plug in dict for write_funcs
+    write_funcs[ext](df, p.strpath)
     spec = {'input': {'file': p.strpath}}
     df_in = read_data(spec)
 
