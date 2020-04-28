@@ -127,7 +127,7 @@ def test_that_load_spec_raises_valueerror_for_invalid_spec(basic_spec_0):
 def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
     """Given a Hypothesis DataFrame, save it as a file of the sampled type,
        and test the reading that file into a Pandas DataFrame works as expected."""
-    print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
+    # print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
 
     expected = df.shape[1]
 
