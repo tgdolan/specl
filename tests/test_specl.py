@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Tests for `munge` package."""
+"""Tests for `specl` package."""
 from functools import partial
 
 import pytest
@@ -15,7 +15,7 @@ from pandas import DataFrame as pdf
 import time
 
 from hypothesis.extra.pandas import columns, data_frames
-from munge import read_spec, read_data
+from specl import read_spec, read_data
 
 
 @pytest.fixture

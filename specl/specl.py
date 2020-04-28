@@ -19,7 +19,7 @@ def data_read_function(path: str) -> Callable:
 
 
 def read_spec(path: str) -> dict:
-    """Reads in a munge spec file and creates a dict from it.
+    """Reads in a specl spec file and creates a dict from it.
     This dict will be used to provide arguments to the various
     data munging functions."""
     with open(path) as yaml_spec:
@@ -42,3 +42,6 @@ def read_data(spec: Dict) -> DataFrame:
     kwargs = {}
     # TODO get extension from path and use as subscript below
     return read_funcs[ext](path, **kwargs)
+
+def execute(spec: str):
+    """The entry point for the data munging process"""
