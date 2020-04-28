@@ -121,9 +121,12 @@ def test_that_load_spec_raises_valueerror_for_invalid_spec(basic_spec_0):
     assert "invalid spec" in str(spec_error.value).lower()
 
 
+@settings(deadline=None)
 @given(data_frames(columns=columns("A B C".split(), dtype=int), index=hpd.range_indexes()),
-       sampled_from(['.csv', '.xls', '.xlsx']))
+       sampled_from(['.csv', '.xls', '.xlsx', '.parquet']))
 def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
+    """Given a Hypothesis DataFrame, save it as a file of the sampled type,
+       and test the reading that file into a Pandas DataFrame works as expected."""
     print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
 
     expected = df.shape[1]
@@ -139,23 +142,3 @@ def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
     assert df_in.shape[1] >= expected
 
 
-@settings(deadline=None)
-@given(data_frames(columns=columns("A B C".split(), dtype=int), index=hpd.range_indexes()),
-       sampled_from(['.parquet']))
-def test_that_read_data_returns_data_frame_parquet(tmpdir, write_funcs, df, ext):
-    print(f'generated dataframe shape of: {df.shape} :: file type is: {ext}')
-
-    expected = df.shape[1]
-    file_name = str(f'test{time.time()}{ext}')
-    # using make_numbered_dir to avoid path collisions when running test for each
-    # hypothesis-generated data frame.
-
-    p = tmpdir.make_numbered_dir().join(file_name)
-    write_funcs[ext](df, p.strpath)
-    # with open(file_name, mode='w') as f:
-    #     pdf.to_parquet(df, f.name, compression='UNCOMPRESSED')
-    spec = {'input': {'file': p.strpath}}
-    df_in = read_data(spec)
-
-    # TODO: Figure out why hypothesis DF shape not equal to Pandas when read from csv
-    assert df_in.shape[1] >= expected
