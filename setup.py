@@ -11,7 +11,12 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'pyyaml'
+    'fastparquet',
+    'openpyxl',
+    'pandas',
+    'pyyaml',
+    'xlrd',
+    'xlwt'
 ]
 
 setup_requirements = ['pytest-runner', ]
@@ -36,16 +41,16 @@ setup(
     description="Python utility for declaritive data munging.",
     entry_points={
         'console_scripts': [
-            'munge=munge.cli:main',
+            'specl=specl.cli:main',
         ],
     },
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    keywords='munge',
-    name='munge',
-    packages=find_packages(include=['munge', 'munge.*']),
+    keywords='specl',
+    name='specl',
+    packages=find_packages(include=['specl', 'specl.*']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,

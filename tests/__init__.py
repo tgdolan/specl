@@ -1,1 +1,1 @@
-"""Unit test package for munge."""
+"""Unit test package for specl."""

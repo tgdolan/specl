@@ -1,11 +1,30 @@
 #!/usr/bin/env python
 
-"""Tests for `munge` package."""
+"""Tests for `specl` package."""
+from functools import partial
 
 import pytest
 from unittest.mock import patch, mock_open
 
-from munge import read_spec
+from hypothesis import given, settings
+from hypothesis.strategies import sampled_from
+from hypothesis.extra import pandas as hpd
+from pandas import read_csv
+from pandas import DataFrame as pdf
+
+import time
+
+from hypothesis.extra.pandas import columns, data_frames
+from specl import read_spec, read_data
+
+
+@pytest.fixture
+def write_funcs():
+    return {'.csv': pdf.to_csv,
+            '.xls': pdf.to_excel,
+            '.xlsx': pdf.to_excel,
+            '.parquet': partial(pdf.to_parquet, compression='UNCOMPRESSED')
+            }
 
 
 @pytest.fixture
@@ -72,6 +91,11 @@ def basic_spec_0():
     """
 
 
+@pytest.fixture
+def empty_csv():
+    return ''
+
+
 def test_that_load_spec_returns_empty_dict_for_empty_spec(empty_spec):
     with patch('builtins.open', new_callable=mock_open, read_data=empty_spec):
         spec = read_spec('fake/file.yaml')
@@ -95,5 +119,26 @@ def test_that_load_spec_raises_valueerror_for_invalid_spec(basic_spec_0):
             spec = read_spec('fake/file.yaml')
 
     assert "invalid spec" in str(spec_error.value).lower()
+
+
+@settings(deadline=None)
+@given(data_frames(columns=columns("A B C".split(), dtype=int), index=hpd.range_indexes()),
+       sampled_from(['.csv', '.xls', '.xlsx', '.parquet']))
+def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
+    """Given a Hypothesis DataFrame, save it as a file of the sampled type,
+       and test the reading that file into a Pandas DataFrame works as expected."""
+    # print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
+
+    expected = df.shape[1]
+
+    # using make_numbered_dir to avoid path collisions when running test for each
+    # hypothesis-generated data frame.
+    p = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
+    write_funcs[ext](df, p.strpath)
+    spec = {'input': {'file': p.strpath}}
+    df_in = read_data(spec)
+
+    # TODO: Figure out why hypothesis DF shape not equal to Pandas when read from csv
+    assert df_in.shape[1] >= expected
 
 
