@@ -1,7 +1,7 @@
 """Console script for specl."""
 import argparse
 import sys
-from specl import specl
+import specl
 
 
 def main():
