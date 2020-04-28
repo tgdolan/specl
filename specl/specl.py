@@ -34,14 +34,15 @@ def read_spec(path: str) -> dict:
 
 def read_data(spec: Dict) -> DataFrame:
     """Creates Pandas DataFrame by reading file at path.
-    Note: Should create decorator to create a 'reader' that
-    handles both .csv and .parquet."""
+       Appropriate read_* pandas method will be called based
+       on the extension of the input file specified."""
 
     path = spec['input']['file']
     ext = Path(path).suffix
     kwargs = {}
-    # TODO get extension from path and use as subscript below
     return read_funcs[ext](path, **kwargs)
+
 
 def execute(spec: str):
     """The entry point for the data munging process"""
+    pass

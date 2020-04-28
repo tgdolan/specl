@@ -142,19 +142,19 @@ def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
 @settings(deadline=None)
 @given(data_frames(columns=columns("A B C".split(), dtype=int), index=hpd.range_indexes()),
        sampled_from(['.parquet']))
-def test_that_read_data_returns_data_frame_parquet(tmpdir, df, ext):
-    print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
+def test_that_read_data_returns_data_frame_parquet(tmpdir, write_funcs, df, ext):
+    print(f'generated dataframe shape of: {df.shape} :: file type is: {ext}')
 
     expected = df.shape[1]
     file_name = str(f'test{time.time()}{ext}')
     # using make_numbered_dir to avoid path collisions when running test for each
     # hypothesis-generated data frame.
 
-    # p = tmpdir.make_numbered_dir().join(file_name)
-    # write_funcs[ext](df, p.strpath)
-    with open(file_name, mode='w') as f:
-        pdf.to_parquet(df, f.name, compression='UNCOMPRESSED')
-    spec = {'input': {'file': file_name}}
+    p = tmpdir.make_numbered_dir().join(file_name)
+    write_funcs[ext](df, p.strpath)
+    # with open(file_name, mode='w') as f:
+    #     pdf.to_parquet(df, f.name, compression='UNCOMPRESSED')
+    spec = {'input': {'file': p.strpath}}
     df_in = read_data(spec)
 
     # TODO: Figure out why hypothesis DF shape not equal to Pandas when read from csv
