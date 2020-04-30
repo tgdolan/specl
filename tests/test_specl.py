@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 """Tests for `specl` package."""
-from functools import partial
 
 import pytest
 from unittest.mock import patch, mock_open
@@ -9,123 +8,11 @@ from unittest.mock import patch, mock_open
 from hypothesis import given, settings
 from hypothesis.strategies import characters, composite, integers, lists, sampled_from, text
 from hypothesis.extra import pandas as hpd
-from pandas import DataFrame as pdf
 
 from hypothesis.extra.pandas import columns, data_frames
 from specl import read_spec, read_data, build_kwargs
-
-# names = text(
-#     characters(max_codepoint=1000, blacklist_categories=('Cc', 'Cs')),
-#     min_size=1).map(lambda s: s.strip()).filter(lambda s: len(s) > 0)
-
-names = text(alphabet=list('abcdefghijklmnopqrstuvwxyz'), min_size=1)
-
-
-@composite
-def gen_columns_and_subset(draw, elements=names):
-    column_names = draw(lists(elements, min_size=1, unique=True))
-    num_columns_to_keep = draw(integers(min_value=1, max_value=len(column_names)))
-    i = num_columns_to_keep
-    columns_to_keep = set()
-    while i > 0:
-        keeper_column = draw(integers(min_value=0, max_value=len(column_names) - 1))
-        columns_to_keep.add(column_names[keeper_column])
-        i = i - 1
-
-    # With column data and 'keeper' columns selected, utilize draw to return
-    # a hypothesis DataFrame column strategies defined.
-    return draw(hpd.data_frames(hpd.columns(column_names, elements=elements),
-                                index=hpd.range_indexes(min_size=5))), columns_to_keep
-
-
-@pytest.fixture
-def write_funcs():
-    return {'.csv': pdf.to_csv,
-            '.xls': pdf.to_excel,
-            '.xlsx': pdf.to_excel,
-            '.parquet': partial(pdf.to_parquet, compression='UNCOMPRESSED')
-            }
-
-
-@pytest.fixture
-def empty_spec():
-    return ''
-
-
-@pytest.fixture
-def basic_spec():
-    return """
-input:
-  columns:
-    column_a:
-      data_type: int
-      name: COLUMN_A
-    column_b:
-      data_type: int
-      name: COLUMN_B
-    column_c:
-      data_type: string
-      name: COLUMN_C
-    column_d:
-      composed_of:
-        - column_a
-        - column_b
-      operation: multiply
-  file: source.csv
-output:
-  columns:
-    COLUMN_C:
-      data_type: int
-    COLUMN_D:
-      data_type: int
-  file: out.csv
-"""
-
-
-@pytest.fixture
-def basic_spec_dict():
-    return {'input': {'columns': {'column_a': {'data_type': 'int', 'name': 'COLUMN_A'},
-                                  'column_b': {'data_type': 'int', 'name': 'COLUMN_B'},
-                                  'column_c': {'data_type': 'string', 'name': 'COLUMN_C'},
-                                  'column_d': {'composed_of': ['column_a', 'column_b'], 'operation': 'multiply'}},
-                      'file': 'source.csv'},
-            'output': {'columns': {'COLUMN_C': {'data_type': 'int'}, 'COLUMN_D': {'data_type': 'int'}},
-                       'file': 'out.csv'}}
-
-
-@pytest.fixture
-def basic_spec_0():
-    return """
- ---
-    input:
-      column_a:
-        data_type: int
-        name: COLUMN_A
-      column_b:
-        data_type: int
-        name: COLUMN_B
-      column_c:
-        data_type: string
-        name: COLUMN_C
-      column_d:
-        composed_of:
-          cols:
-            - column_a
-            - column_b
-          operation: multiply
-        name: COLUMN_D
-      file: source.csv
-    output:
-      file: out.csv
-      column_c
-      column_d
-    """
-
-
-@pytest.fixture
-def empty_csv():
-    return ''
-
+from tests.fixtures import empty_csv, empty_spec, basic_spec_0, basic_spec_dict, basic_spec, write_funcs
+from tests.strategies import names, gen_columns_and_subset
 
 def write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext):
     tmp_file = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
