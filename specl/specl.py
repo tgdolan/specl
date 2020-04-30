@@ -39,7 +39,7 @@ def read_data(spec: Dict) -> DataFrame:
 
     path = spec['input']['file']
     ext = Path(path).suffix
-    kwargs = build_kwargs(spec)
+    kwargs = build_kwargs(spec, ext)
     print(kwargs)
     return read_funcs[ext](path, **kwargs)
 

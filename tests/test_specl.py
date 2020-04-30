@@ -209,5 +209,5 @@ def test_that_build_kwargs_adds_columns_arg_based_on_ext(basic_spec_dict):
 
 def test_that_build_kwargs_does_not_add_columns_arg_when_empty():
     spec = {'input': {'file': 'foo.txt'}}
-    kwargs = build_kwargs(spec)
+    kwargs = build_kwargs(spec, '.csv')
     assert 'usecols' not in list(kwargs.keys())
