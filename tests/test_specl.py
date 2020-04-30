@@ -12,11 +12,13 @@ from hypothesis.extra import pandas as hpd
 from pandas import DataFrame as pdf
 
 from hypothesis.extra.pandas import columns, data_frames
-from specl import read_spec, read_data
+from specl import read_spec, read_data, build_kwargs
 
-names = text(
-    characters(max_codepoint=1000, blacklist_categories=('Cc', 'Cs')),
-    min_size=1).map(lambda s: s.strip()).filter(lambda s: len(s) > 0)
+# names = text(
+#     characters(max_codepoint=1000, blacklist_categories=('Cc', 'Cs')),
+#     min_size=1).map(lambda s: s.strip()).filter(lambda s: len(s) > 0)
+
+names = text(alphabet=list('abcdefghijklmnopqrstuvwxyz'), min_size=1)
 
 
 @composite
@@ -24,15 +26,15 @@ def gen_columns_and_subset(draw, elements=names):
     column_names = draw(lists(elements, min_size=1, unique=True))
     num_columns_to_keep = draw(integers(min_value=1, max_value=len(column_names)))
     i = num_columns_to_keep
-    columns_to_keep = []
+    columns_to_keep = set()
     while i > 0:
         keeper_column = draw(integers(min_value=0, max_value=len(column_names) - 1))
-        columns_to_keep.append(column_names[keeper_column])
+        columns_to_keep.add(column_names[keeper_column])
         i = i - 1
 
     # With column data and 'keeper' columns selected, utilize draw to return
     # a hypothesis DataFrame column strategies defined.
-    return draw(hpd.data_frames(hpd.columns(column_names, elements=text()),
+    return draw(hpd.data_frames(hpd.columns(column_names, elements=elements),
                                 index=hpd.range_indexes(min_size=5))), columns_to_keep
 
 
@@ -53,31 +55,42 @@ def empty_spec():
 @pytest.fixture
 def basic_spec():
     return """
-input: 
-  columns: 
-    column_a: 
+input:
+  columns:
+    column_a:
       data_type: int
       name: COLUMN_A
-    column_b: 
+    column_b:
       data_type: int
       name: COLUMN_B
-    column_c: 
+    column_c:
       data_type: string
       name: COLUMN_C
-    column_d: 
-      composed_of: 
+    column_d:
+      composed_of:
         - column_a
         - column_b
       operation: multiply
   file: source.csv
-output: 
-  columns: 
-    COLUMN_C: 
+output:
+  columns:
+    COLUMN_C:
       data_type: int
-    COLUMN_D: 
+    COLUMN_D:
       data_type: int
   file: out.csv
 """
+
+
+@pytest.fixture
+def basic_spec_dict():
+    return {'input': {'columns': {'column_a': {'data_type': 'int', 'name': 'COLUMN_A'},
+                                  'column_b': {'data_type': 'int', 'name': 'COLUMN_B'},
+                                  'column_c': {'data_type': 'string', 'name': 'COLUMN_C'},
+                                  'column_d': {'composed_of': ['column_a', 'column_b'], 'operation': 'multiply'}},
+                      'file': 'source.csv'},
+            'output': {'columns': {'COLUMN_C': {'data_type': 'int'}, 'COLUMN_D': {'data_type': 'int'}},
+                       'file': 'out.csv'}}
 
 
 @pytest.fixture
@@ -119,6 +132,7 @@ def write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext):
     write_funcs[ext](df, tmp_file.strpath)
     return tmp_file.strpath
 
+
 def test_that_load_spec_returns_empty_dict_for_empty_spec(empty_spec):
     with patch('builtins.open', new_callable=mock_open, read_data=empty_spec):
         spec = read_spec('fake/file.yaml')
@@ -148,7 +162,7 @@ def test_that_load_spec_raises_valueerror_for_invalid_spec(basic_spec_0):
 @settings(deadline=None)
 @given(data_frames(columns=columns("A B C".split(), dtype=int), index=hpd.range_indexes()),
        sampled_from(['.csv', '.xls', '.xlsx', '.parquet']))
-def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
+def test_that_read_data_returns_data_frame(tmpdir, write_funcs, basic_spec_dict, df, ext):
     """Given a Hypothesis DataFrame, save it as a file of the sampled type,
        and test the reading that file into a Pandas DataFrame works as expected."""
     # print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
@@ -167,13 +181,29 @@ def test_that_read_data_returns_data_frame(tmpdir, write_funcs, df, ext):
     assert df_in.shape[1] >= expected
 
 
+@settings(deadline=None)
 @given(gen_columns_and_subset())
-def test_that_read_function_called_with_columns_specified(self, df_config):
-    pass
-    # hdf, keeper_cols = df_config
-    # result = read_data
-    # filtered_df = fpscratch.filter_cols(hdf, keeper_cols)
-    # print(f'filtered_cols: {filtered_df.columns} :: keepers: {keeper_cols}')
-    # self.assertEqual(filtered_df.columns, keeper_cols)
+def test_that_read_function_called_with_columns_specified(tmpdir, write_funcs, basic_spec_dict, df_config):
+    hdf, keeper_cols = df_config
+    tmp_file_path = write_dataframe_to_tmpdir(tmpdir, write_funcs, hdf, '.csv')
+    col_specs = map(lambda c: {c: {'data_type': 'int'}}, keeper_cols)
+    basic_spec_dict['input']['file'] = tmp_file_path
+    basic_spec_dict['input']['columns'] = {}
+    # bogus, i know
+    for col in col_specs:
+        col_name = list(col.keys())[0]
+        col_spec = list(col.values())[0]
+        basic_spec_dict['input']['columns'][col_name] = col_spec
+    df = read_data(basic_spec_dict)
+    assert list(df.columns.values).sort() == list(keeper_cols).sort()
 
 
+def test_that_build_kwargs_adds_columns_arg(basic_spec_dict):
+    kwargs = build_kwargs(basic_spec_dict)
+    assert 'usecols' in list(kwargs.keys())
+
+
+def test_that_build_kwargs_does_not_add_columns_arg_when_empty():
+    spec = {'input': {'file': 'foo.txt'}}
+    kwargs = build_kwargs(spec)
+    assert 'usecols' not in list(kwargs.keys())
