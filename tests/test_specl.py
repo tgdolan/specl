@@ -182,10 +182,10 @@ def test_that_read_data_returns_data_frame(tmpdir, write_funcs, basic_spec_dict,
 
 
 @settings(deadline=None)
-@given(gen_columns_and_subset())
-def test_that_read_function_called_with_columns_specified(tmpdir, write_funcs, basic_spec_dict, df_config):
+@given(gen_columns_and_subset(), sampled_from(['.csv', '.xls', '.xlsx', '.parquet']))
+def test_that_read_function_called_with_columns_specified(tmpdir, write_funcs, basic_spec_dict, df_config, ext):
     hdf, keeper_cols = df_config
-    tmp_file_path = write_dataframe_to_tmpdir(tmpdir, write_funcs, hdf, '.csv')
+    tmp_file_path = write_dataframe_to_tmpdir(tmpdir, write_funcs, hdf, ext)
     col_specs = map(lambda c: {c: {'data_type': 'int'}}, keeper_cols)
     basic_spec_dict['input']['file'] = tmp_file_path
     basic_spec_dict['input']['columns'] = {}
@@ -199,8 +199,12 @@ def test_that_read_function_called_with_columns_specified(tmpdir, write_funcs, b
 
 
 def test_that_build_kwargs_adds_columns_arg(basic_spec_dict):
-    kwargs = build_kwargs(basic_spec_dict)
+    kwargs = build_kwargs(basic_spec_dict, '.xlsx')
     assert 'usecols' in list(kwargs.keys())
+
+def test_that_build_kwargs_adds_columns_arg_based_on_ext(basic_spec_dict):
+    kwargs = build_kwargs(basic_spec_dict, '.parquet')
+    assert 'columns' in list(kwargs.keys())
 
 
 def test_that_build_kwargs_does_not_add_columns_arg_when_empty():

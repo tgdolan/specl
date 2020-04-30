@@ -49,9 +49,14 @@ def execute(spec: str):
     pass
 
 
-def build_kwargs(spec):
+def build_kwargs(spec, ext):
+    """Builds up kwargs for the Pandas read_* functions."""
+    col_arg_names = {'.parquet': 'columns',
+                     '.xls': 'usecols',
+                     '.xlsx': 'usecols',
+                     '.csv': 'usecols'}
     kwargs = {}
     if 'columns' in list(spec['input'].keys()):
-        kwargs['usecols'] = list(spec['input']['columns'].keys())
+        kwargs[col_arg_names[ext]] = list(spec['input']['columns'].keys())
 
     return kwargs
