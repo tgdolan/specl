@@ -39,10 +39,24 @@ def read_data(spec: Dict) -> DataFrame:
 
     path = spec['input']['file']
     ext = Path(path).suffix
-    kwargs = {}
+    kwargs = build_kwargs(spec, ext)
+    print(kwargs)
     return read_funcs[ext](path, **kwargs)
 
 
 def execute(spec: str):
     """The entry point for the data munging process"""
     pass
+
+
+def build_kwargs(spec, ext):
+    """Builds up kwargs for the Pandas read_* functions."""
+    col_arg_names = {'.parquet': 'columns',
+                     '.xls': 'usecols',
+                     '.xlsx': 'usecols',
+                     '.csv': 'usecols'}
+    kwargs = {}
+    if 'columns' in list(spec['input'].keys()):
+        kwargs[col_arg_names[ext]] = list(spec['input']['columns'].keys())
+
+    return kwargs
