@@ -2,7 +2,7 @@
 from hypothesis.strategies import characters, composite, integers, lists, sampled_from, text
 from hypothesis.extra import pandas as hpd
 
-from hypothesis.extra.pandas import columns, data_frames
+from hypothesis.extra.pandas import columns, data_frames, column, range_indexes
 
 # names = text(
 #     characters(max_codepoint=1000, blacklist_categories=('Cc', 'Cs')),
@@ -10,6 +10,7 @@ from hypothesis.extra.pandas import columns, data_frames
 
 names = text(alphabet=list('abcdefghijklmnopqrstuvwxyz'), min_size=1)
 
+a_b_dataframe = data_frames([column('A', dtype=int), column('B', dtype=float)], index=range_indexes(min_size=2))
 
 @composite
 def gen_columns_and_subset(draw, elements=names):
