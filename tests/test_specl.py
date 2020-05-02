@@ -4,15 +4,17 @@
 
 import pytest
 from unittest.mock import patch, mock_open
+import pandas as pd
 
 from hypothesis import given, settings
 from hypothesis.strategies import characters, composite, integers, lists, sampled_from, text
 from hypothesis.extra import pandas as hpd
 
 from hypothesis.extra.pandas import columns, data_frames
-from specl import read_spec, read_data, build_kwargs
+from specl import read_spec, read_data, build_kwargs, rename_columns
 from tests.fixtures import empty_csv, empty_spec, basic_spec_0, basic_spec_dict, basic_spec, write_funcs
-from tests.strategies import names, gen_columns_and_subset
+from tests.strategies import names, gen_columns_and_subset, a_b_dataframe
+
 
 def write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext):
     tmp_file = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
@@ -89,6 +91,7 @@ def test_that_build_kwargs_adds_columns_arg(basic_spec_dict):
     kwargs = build_kwargs(basic_spec_dict, '.xlsx')
     assert 'usecols' in list(kwargs.keys())
 
+
 def test_that_build_kwargs_adds_columns_arg_based_on_ext(basic_spec_dict):
     kwargs = build_kwargs(basic_spec_dict, '.parquet')
     assert 'columns' in list(kwargs.keys())
@@ -98,3 +101,12 @@ def test_that_build_kwargs_does_not_add_columns_arg_when_empty():
     spec = {'input': {'file': 'foo.txt'}}
     kwargs = build_kwargs(spec, '.csv')
     assert 'usecols' not in list(kwargs.keys())
+
+
+def test_that_columns_get_renamed_per_spec(basic_spec_dict):
+    basic_dataframe = pd.DataFrame(data={'A': [1, 2], 'B': [3, 4]})
+    basic_spec_dict['input']['columns'] = {'A': {'data_type': 'int', 'name': 'foo'},
+                                                       'B': {'date_type': 'int', 'name': 'bar'}}
+    spec, renamed_df = rename_columns(basic_spec_dict, basic_dataframe)
+    assert spec == basic_spec_dict
+    assert list(renamed_df.columns) == ['foo', 'bar']
