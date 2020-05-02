@@ -4,7 +4,7 @@ from pandas import DataFrame as pdf
 from functools import partial
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def write_funcs():
     return {'.csv': pdf.to_csv,
             '.xls': pdf.to_excel,
@@ -13,12 +13,12 @@ def write_funcs():
             }
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def empty_spec():
     return ''
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def basic_spec():
     return """
 input:
@@ -48,7 +48,7 @@ output:
 """
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def basic_spec_dict():
     return {'input': {'columns': {'column_a': {'data_type': 'int', 'name': 'COLUMN_A'},
                                   'column_b': {'data_type': 'int', 'name': 'COLUMN_B'},
@@ -59,7 +59,7 @@ def basic_spec_dict():
                        'file': 'out.csv'}}
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def basic_spec_0():
     return """
  ---
@@ -88,6 +88,6 @@ def basic_spec_0():
     """
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def empty_csv():
     return ''

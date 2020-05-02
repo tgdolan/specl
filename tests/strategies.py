@@ -12,6 +12,13 @@ names = text(alphabet=list('abcdefghijklmnopqrstuvwxyz'), min_size=1)
 
 a_b_dataframe = data_frames([column('A', dtype=int), column('B', dtype=float)], index=range_indexes(min_size=2))
 
+
+@composite
+def gen_rando_dataframe(draw, elements=names):
+    column_names = draw(lists(elements, min_size=1, unique=True))
+    return draw(hpd.data_frames(hpd.columns(column_names, elements=elements),
+                         index=hpd.range_indexes(min_size=5)))
+
 @composite
 def gen_columns_and_subset(draw, elements=names):
     column_names = draw(lists(elements, min_size=1, unique=True))
