@@ -1,4 +1,5 @@
 """Main module."""
+from functools import reduce
 from typing import Dict, Callable
 from pathlib import Path
 
@@ -30,6 +31,15 @@ def read_spec(path: str) -> dict:
             raise ValueError(f'Invalid spec found at: {path}')
 
     return spec if spec else {}
+
+
+def rename_columns(spec, data_frame):
+    columns = spec['input']['columns']
+    columns_to_rename = filter(lambda x: 'name' in x[1].keys(), list(columns.items()))
+    column_name_keys = map(lambda col_config: {col_config[0]: col_config[1]['name']}, list(columns_to_rename))
+    column_rename_data = reduce(lambda col_kv, src: col_kv.update(src) or col_kv, column_name_keys, {})
+
+    return spec, data_frame.rename(columns=column_rename_data)
 
 
 def read_data(spec: Dict) -> DataFrame:
