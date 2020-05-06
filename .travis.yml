@@ -1,16 +1,58 @@
-# Config file for automatic testing at travis-ci.com
-
 language: python
-python:
-  - 3.8
-  - 3.7
-  - 3.6
-  - 3.5
+dist: xenial
+cache: false
+env:
+    global:
+        - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
+        - SEGFAULT_SIGNALS=all
+matrix:
+    include:
+        -   env:
+                - TOXENV=py36
+            python: '3.6'
+            stage: tox
+        -   env:
+                - TOXENV=py37
+            python: '3.7'
+            stage: tox
+        -   env:
+                - TOXENV=py38
+            python: '3.8'
+            stage: tox
+        - stage: test
+          python: '3.7'
+          install:
+          - pipenv install --dev --ignore-pipfile --deploy
+          before_script: # code coverage tool
+          - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          - chmod +x ./cc-test-reporter
+          - ./cc-test-reporter before-build
+          script: pytest --cov-report term --cov-report xml
+          after_script:
+          - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox-travis
 
-# Command to run tests, e.g. python setup.py test
-script: tox
+stages:
+    - test
+    -   name: tox
+        if: branch = master
 
-
+before_install:
+    - python --version
+    - uname -a
+    - lsb_release -a || true
+install:
+    - python -mpip install --progress-bar=off tox-travis -rci/requirements.txt
+    - virtualenv --version
+    - easy_install --version
+    - pip --version
+    - tox --version
+script:
+    - tox -v
+after_failure:
+    - more .tox/log/* | cat
+    - more .tox/*/log/* | cat
+notifications:
+    email:
+        on_success: never
+        on_failure: always
