@@ -34,15 +34,13 @@ matrix:
 
 stages:
     - test
-    -   name: tox
-        if: branch = master
 
 before_install:
     - python --version
     - uname -a
     - lsb_release -a || true
 install:
-    - python -m pip install --progress-bar=off tox-travis
+    - pipenv install --progress-bar=off tox-travis
     - virtualenv --version
     - easy_install --version
     - pip --version
