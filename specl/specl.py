@@ -7,6 +7,7 @@ from yaml import load, load_all, FullLoader
 from yaml.scanner import ScannerError
 from pandas import DataFrame, read_csv, read_excel, read_parquet
 from specl.specl_decorators import log_cleanup_data
+import importlib
 
 
 
@@ -14,12 +15,6 @@ read_funcs = {'.csv': read_csv,
               '.xls': read_excel,
               '.xlsx': read_excel,
               '.parquet': read_parquet}
-
-
-def data_read_function(path: str) -> Callable:
-    """Decorator for determining appropriate 'read' function
-    based on the file extension."""
-
 
 
 def read_spec(path: str) -> dict:
@@ -42,8 +37,23 @@ def rename_columns(spec, data_frame):
     columns_to_rename = filter(lambda x: 'name' in x[1].keys(), list(columns.items()))
     column_name_keys = map(lambda col_config: {col_config[0]: col_config[1]['name']}, list(columns_to_rename))
     column_rename_data = reduce(lambda col_kv, src: col_kv.update(src) or col_kv, column_name_keys, {})
-    rnf = data_frame.rename(columns=column_rename_data)
-    return spec, rnf
+    df_renamed = data_frame.rename(columns=column_rename_data)
+    return spec, df_renamed
+
+
+@log_cleanup_data
+def transform_columns(spec, data_frame):
+    columns = spec['transform']['columns']
+
+    for new_col, config in columns.items():
+        pkg, method_name = config['operation'].rsplit('.', 1)
+
+        mod = importlib.import_module(pkg)
+        tx_method = getattr(mod, method_name)
+
+        data_frame[new_col] = tx_method(data_frame[config['composed_of'][0]], data_frame[config['composed_of'][1]])
+
+    return spec, data_frame
 
 
 def read_data(spec: Dict) -> DataFrame:
@@ -54,7 +64,7 @@ def read_data(spec: Dict) -> DataFrame:
     path = spec['input']['file']
     ext = Path(path).suffix
     kwargs = build_kwargs(spec, ext)
-    return read_funcs[ext](path, **kwargs)
+    return spec, read_funcs[ext](path, **kwargs)
 
 
 def execute(spec_path: str):
@@ -62,7 +72,8 @@ def execute(spec_path: str):
     spec = read_spec(spec_path)
     df1 = read_data(spec)
     spec, df2 = rename_columns(spec, df1)
-    print(df2)
+    spec, df3 = transform_columns(spec, df2)
+    print(df3)
 
 
 def build_kwargs(spec, ext):
@@ -77,6 +88,3 @@ def build_kwargs(spec, ext):
 
     return kwargs
 
-
-if __name__ == '__main__':
-    execute('../samples/spec/sample_spec.yml')

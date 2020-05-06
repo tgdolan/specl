@@ -14,7 +14,7 @@ from hypothesis.extra import pandas as hpd
 from hypothesis.extra.pandas import columns, data_frames
 from specl import read_spec, read_data, build_kwargs, rename_columns
 from tests.fixtures import empty_csv, empty_spec, basic_spec_0, basic_spec_dict, basic_spec, write_funcs
-from tests.strategies import names, gen_columns_and_subset, gen_rando_dataframe
+from tests.strategies import names, gen_columns_and_subset, gen_rando_dataframe, gen_mixed_type_dataset
 
 
 def write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext):
@@ -65,7 +65,7 @@ def test_that_read_data_returns_data_frame(tmpdir, write_funcs, basic_spec_dict,
     # write_funcs[ext](df, p.strpath)
     tmp_file_path = write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext)
     spec = {'input': {'file': tmp_file_path}}
-    df_in = read_data(spec)
+    spec, df_in = read_data(spec)
 
     # TODO: Figure out why hypothesis DF shape not equal to Pandas when read from csv
     assert df_in.shape[1] >= expected
@@ -84,7 +84,7 @@ def test_that_read_function_called_with_columns_specified(tmpdir, write_funcs, b
         col_name = list(col.keys())[0]
         col_spec = list(col.values())[0]
         basic_spec_dict['input']['columns'][col_name] = col_spec
-    df = read_data(basic_spec_dict)
+    spec, df = read_data(basic_spec_dict)
     assert list(df.columns.values).sort() == list(keeper_cols).sort()
 
 
@@ -121,3 +121,7 @@ def test_that_columns_get_renamed_per_spec(basic_spec_dict, hdf):
     spec, renamed_df = rename_columns(basic_spec_dict, hdf)
     assert spec == basic_spec_dict
     assert list(renamed_df.columns) == list(map(lambda col_name: col_name.upper(), list(hdf.columns)))
+
+@given(gen_mixed_type_dataset())
+def test_something(df):
+    print(df)
