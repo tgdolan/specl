@@ -6,8 +6,8 @@ specl
 .. image:: https://img.shields.io/pypi/v/munge.svg
         :target: https://pypi.python.org/pypi/munge
 
-.. image:: https://img.shields.io/travis/tgdolan/munge.svg
-        :target: https://travis-ci.com/tgdolan/munge
+.. image:: https://travis-ci.com/tgdolan/specl.svg?branch=master
+    :target: https://travis-ci.com/tgdolan/specl
 
 .. image:: https://readthedocs.org/projects/munge/badge/?version=latest
         :target: https://munge.readthedocs.io/en/latest/?badge=latest
