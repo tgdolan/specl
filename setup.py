@@ -21,7 +21,7 @@ requirements = [
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest>=3', hypothesis ]
+test_requirements = ['pytest>=3', 'hypothesis',]
 
 setup(
     author="Tom Dolan",
