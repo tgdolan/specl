@@ -1,5 +1,5 @@
 =====
-munge
+specl
 =====
 
 
@@ -16,17 +16,16 @@ munge
 
 
 
-Python utility for declaritive data munging.
+Python utility for declarative data munging.
 
 
 * Free software: MIT license
-* Documentation: https://munge.readthedocs.io.
 
 
 Features
 --------
 
-* TODO
+* Drive data cleanup with a spec.
 
 Credits
 -------
