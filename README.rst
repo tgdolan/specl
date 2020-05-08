@@ -3,24 +3,18 @@ specl
 =====
 
 
-.. image:: https://img.shields.io/pypi/v/munge.svg
-        :target: https://pypi.python.org/pypi/munge
-
 .. image:: https://travis-ci.com/tgdolan/specl.svg?branch=master
     :target: https://travis-ci.com/tgdolan/specl
 
-.. image:: https://readthedocs.org/projects/munge/badge/?version=latest
-        :target: https://munge.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-
-
-
-Python utility for declarative data munging.
+Python utility for declarative data cleanup.
 
 
 * Free software: MIT license
 
+Getting Started
+_______________
+specl applies data from a YAML file to drive data cleanup. You can run specl with the following command:
+``pythom -m specl samples/specs/sample_spec.yml``
 
 Features
 --------
