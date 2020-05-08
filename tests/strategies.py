@@ -1,6 +1,7 @@
 """Hypothesis strategies used to generate data for specl tests."""
 from hypothesis.strategies import characters, composite, integers, lists, sampled_from, text
 from hypothesis.extra import pandas as hpd
+from itertools import cycle
 
 from hypothesis.extra.pandas import columns, data_frames, column, range_indexes
 
@@ -8,9 +9,18 @@ from hypothesis.extra.pandas import columns, data_frames, column, range_indexes
 #     characters(max_codepoint=1000, blacklist_categories=('Cc', 'Cs')),
 #     min_size=1).map(lambda s: s.strip()).filter(lambda s: len(s) > 0)
 
+# random string generator to be used for column names
 names = text(alphabet=list('abcdefghijklmnopqrstuvwxyz'), min_size=1)
+data_types = sampled_from(['int', 'bool', 'str', 'float64'])
 
 a_b_dataframe = data_frames([column('A', dtype=int), column('B', dtype=float)], index=range_indexes(min_size=2))
+
+
+@composite
+def gen_rando_dataframe(draw, elements=names):
+    column_names = draw(lists(elements, min_size=1, unique=True))
+    return draw(hpd.data_frames(hpd.columns(column_names, elements=elements),
+                         index=hpd.range_indexes(min_size=5)))
 
 @composite
 def gen_columns_and_subset(draw, elements=names):
@@ -27,3 +37,13 @@ def gen_columns_and_subset(draw, elements=names):
     # a hypothesis DataFrame column strategies defined.
     return draw(hpd.data_frames(hpd.columns(column_names, elements=elements),
                                 index=hpd.range_indexes(min_size=5))), columns_to_keep
+
+@composite
+def gen_mixed_type_dataset(draw, column_names=names, col_types=data_types):
+    column_names = draw(lists(column_names, min_size=1, unique=True))
+    column_defs = list(map(lambda col_name: hpd.column(name=col_name, dtype=draw(col_types)), column_names))
+    return draw(hpd.data_frames(columns=column_defs))
+
+
+
+

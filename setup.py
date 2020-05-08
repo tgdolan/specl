@@ -21,7 +21,7 @@ requirements = [
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest>=3', ]
+test_requirements = ['pytest>=3', 'hypothesis', 'pytest-cov']
 
 setup(
     author="Tom Dolan",
@@ -38,13 +38,13 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Python utility for declaritive data munging.",
+    description="Python utility for declaritive data cleanup.",
     entry_points={
         'console_scripts': [
             'specl=specl.cli:main',
         ],
     },
-    install_requires=requirements,
+    install_requires=[requirements, test_requirements],
     license="MIT license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
@@ -53,8 +53,8 @@ setup(
     packages=find_packages(include=['specl', 'specl.*']),
     setup_requires=setup_requirements,
     test_suite='tests',
-    tests_require=test_requirements,
-    url='https://github.com/tgdolan/munge',
+    tests_require=[requirements, test_requirements],
+    url='https://github.com/tgdolan/specl',
     version='0.1.0',
     zip_safe=False,
 )

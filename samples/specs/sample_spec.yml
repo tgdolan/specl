@@ -1,0 +1,29 @@
+input:
+  columns:
+    column_a:
+      data_type: int
+      name: COLUMN_A
+    column_b:
+      data_type: int
+      name: COLUMN_B
+    column_c:
+      data_type: string
+      name: COLUMN_C
+      operation: multiply
+  file: samples/data/sample1.csv
+transform:
+  rows:
+      dropna: any
+  columns:
+    column_d:
+      composed_of:
+        - COLUMN_A
+        - COLUMN_B
+      operation: operator.mul
+output:
+  columns:
+    COLUMN_C:
+      data_type: int
+    COLUMN_D:
+      data_type: int
+  file: out.csv

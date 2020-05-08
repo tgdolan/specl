@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 
 """Tests for `specl` package."""
+from functools import reduce
 
 import pytest
 from unittest.mock import patch, mock_open
+import numpy as np
+import pandas as pd
 
 from hypothesis import given, settings
 from hypothesis.strategies import characters, composite, integers, lists, sampled_from, text
 from hypothesis.extra import pandas as hpd
 
 from hypothesis.extra.pandas import columns, data_frames
-from specl import read_spec, read_data, build_kwargs
+from specl import read_spec, read_data, build_kwargs, rename_columns, dropna_rows
 from tests.fixtures import empty_csv, empty_spec, basic_spec_0, basic_spec_dict, basic_spec, write_funcs
-from tests.strategies import names, gen_columns_and_subset
+from tests.strategies import names, gen_columns_and_subset, gen_rando_dataframe, gen_mixed_type_dataset
+
 
 def write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext):
     tmp_file = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
@@ -62,7 +66,7 @@ def test_that_read_data_returns_data_frame(tmpdir, write_funcs, basic_spec_dict,
     # write_funcs[ext](df, p.strpath)
     tmp_file_path = write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext)
     spec = {'input': {'file': tmp_file_path}}
-    df_in = read_data(spec)
+    spec, df_in = read_data(spec)
 
     # TODO: Figure out why hypothesis DF shape not equal to Pandas when read from csv
     assert df_in.shape[1] >= expected
@@ -81,13 +85,14 @@ def test_that_read_function_called_with_columns_specified(tmpdir, write_funcs, b
         col_name = list(col.keys())[0]
         col_spec = list(col.values())[0]
         basic_spec_dict['input']['columns'][col_name] = col_spec
-    df = read_data(basic_spec_dict)
+    spec, df = read_data(basic_spec_dict)
     assert list(df.columns.values).sort() == list(keeper_cols).sort()
 
 
 def test_that_build_kwargs_adds_columns_arg(basic_spec_dict):
     kwargs = build_kwargs(basic_spec_dict, '.xlsx')
     assert 'usecols' in list(kwargs.keys())
+
 
 def test_that_build_kwargs_adds_columns_arg_based_on_ext(basic_spec_dict):
     kwargs = build_kwargs(basic_spec_dict, '.parquet')
@@ -98,3 +103,37 @@ def test_that_build_kwargs_does_not_add_columns_arg_when_empty():
     spec = {'input': {'file': 'foo.txt'}}
     kwargs = build_kwargs(spec, '.csv')
     assert 'usecols' not in list(kwargs.keys())
+
+
+def test_that_columns_get_renamed_per_spec(basic_spec_dict):
+    basic_dataframe = pd.DataFrame(data={'A': [1, 2], 'B': [3, 4]})
+    basic_spec_dict['input']['columns'] = {'A': {'data_type': 'int', 'name': 'foo'},
+                                           'B': {'date_type': 'int', 'name': 'bar'}}
+    spec, renamed_df = rename_columns(basic_spec_dict, basic_dataframe)
+    assert spec == basic_spec_dict
+    assert list(renamed_df.columns) == ['foo', 'bar']
+
+
+@given(gen_rando_dataframe())
+def test_that_columns_get_renamed_per_spec(basic_spec_dict, hdf):
+    rename_col_config = map(lambda x: {x: {'data_type': 'int', 'name': x.upper()}}, list(hdf.columns))
+    basic_spec_dict['input']['columns'] = reduce(lambda config, col: config.update(col) or config,
+                                                 list(rename_col_config))
+    spec, renamed_df = rename_columns(basic_spec_dict, hdf)
+    assert spec == basic_spec_dict
+    assert list(renamed_df.columns) == list(map(lambda col_name: col_name.upper(), list(hdf.columns)))
+
+
+def test_that_drop_na_works_for_rows(basic_spec_dict):
+    basic_dataframe = pd.DataFrame(data={'A': [1, 2], 'B': [3, np.nan]})
+    basic_spec_dict['transform']['rows']['dropna'] = 'any'
+    df_out = dropna_rows(basic_spec_dict, basic_dataframe)
+    assert df_out.shape == (1, 2)
+
+
+@given(gen_mixed_type_dataset())
+def test_that_drop_na_works_for_rows_hypothesis(basic_spec_dict, df):
+    basic_spec_dict['transform']['rows']['dropna'] = 'any'
+    df_out = dropna_rows(basic_spec_dict, df)
+    count = df.count(axis=1)
+    assert df.dropna().shape[0] == df_out.shape[0]

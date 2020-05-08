@@ -1,32 +1,57 @@
 =====
-munge
+specl
 =====
 
 
-.. image:: https://img.shields.io/pypi/v/munge.svg
-        :target: https://pypi.python.org/pypi/munge
+.. image:: https://travis-ci.com/tgdolan/specl.svg?branch=master
+    :target: https://travis-ci.com/tgdolan/specl
 
-.. image:: https://img.shields.io/travis/tgdolan/munge.svg
-        :target: https://travis-ci.com/tgdolan/munge
-
-.. image:: https://readthedocs.org/projects/munge/badge/?version=latest
-        :target: https://munge.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-
-
-
-Python utility for declaritive data munging.
+Python utility for declarative data cleanup.
 
 
 * Free software: MIT license
-* Documentation: https://munge.readthedocs.io.
+
+Getting Started
+---------------
+specl applies data from a YAML file to drive data cleanup. You can run specl with the following command:
+
+``python -m specl.cli --spec samples/specs/sample_spec.yml --log INFO``
+
+where 'sample/specs/sample_spec.yml' is the path to the YAML file that defines how you want the data to be cleaned.
+
+Running Tests
+-------------
+To run pytest with coverage:
+
+``pytest --cov=specl --cov-report html``
+
+Running tests and displaying Hypothesis stats:
+
+``pytest --hypothesis-show-statistics``
+
 
 
 Features
 --------
 
-* TODO
+* Drive data cleanup with a spec.
+
+Code Overview
+-------------
+Implementation for specl is in a few different modules:
+
+* specl/cli.py -- command line entry point
+* specl/specl.py -- core functions
+* specl/specl_decorators.py -- logging and function registry decorators
+
+Tests for specl also span a few modules:
+
+* tests/test_specl.py
+* tests/test_cli.py
+* tests/test_specl_decorators.py
+* fixtures.py -- Pytest fixtures
+* strategies.py -- Module containing the Hypothesis strategies used to generate random data frames.
+
 
 Credits
 -------
