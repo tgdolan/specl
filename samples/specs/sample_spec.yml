@@ -17,9 +17,9 @@ transform:
   columns:
     column_d:
       composed_of:
-        - column_a
-        - column_b
-      operation: multiply
+        - COLUMN_A
+        - COLUMN_B
+      operation: operator.mul
 output:
   columns:
     COLUMN_C:

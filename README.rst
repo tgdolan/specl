@@ -12,14 +12,46 @@ Python utility for declarative data cleanup.
 * Free software: MIT license
 
 Getting Started
-_______________
+---------------
 specl applies data from a YAML file to drive data cleanup. You can run specl with the following command:
-``pythom -m specl samples/specs/sample_spec.yml``
+
+``python -m specl.cli --spec samples/specs/sample_spec.yml --log INFO``
+
+where 'sample/specs/sample_spec.yml' is the path to the YAML file that defines how you want the data to be cleaned.
+
+Running Tests
+-------------
+To run pytest with coverage:
+
+``pytest --cov=specl --cov-report html``
+
+Running tests and displaying Hypothesis stats:
+
+``pytest --hypothesis-show-statistics``
+
+
 
 Features
 --------
 
 * Drive data cleanup with a spec.
+
+Code Overview
+-------------
+Implementation for specl is in a few different modules:
+
+* specl/cli.py -- command line entry point
+* specl/specl.py -- core functions
+* specl/specl_decorators.py -- logging and function registry decorators
+
+Tests for specl also span a few modules:
+
+* tests/test_specl.py
+* tests/test_cli.py
+* tests/test_specl_decorators.py
+* fixtures.py -- Pytest fixtures
+* strategies.py -- Module containing the Hypothesis strategies used to generate random data frames.
+
 
 Credits
 -------
