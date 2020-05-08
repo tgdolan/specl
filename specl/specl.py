@@ -9,8 +9,6 @@ from pandas import DataFrame, read_csv, read_excel, read_parquet
 from specl.specl_decorators import log_cleanup_data
 import importlib
 
-
-
 read_funcs = {'.csv': read_csv,
               '.xls': read_excel,
               '.xlsx': read_excel,
@@ -67,6 +65,10 @@ def read_data(spec: Dict) -> DataFrame:
     return spec, read_funcs[ext](path, **kwargs)
 
 
+def dropna_rows(spec, data_frame):
+    return data_frame.dropna() if spec['transform']['rows']['dropna'] == 'any' else data_frame
+
+
 def execute(spec_path: str):
     """The entry point for the data munging process"""
     spec = read_spec(spec_path)
@@ -87,4 +89,3 @@ def build_kwargs(spec, ext):
         kwargs[col_arg_names[ext]] = list(spec['input']['columns'].keys())
 
     return kwargs
-

@@ -12,6 +12,8 @@ input:
       operation: multiply
   file: samples/data/sample1.csv
 transform:
+  rows:
+      dropna: any
   columns:
     column_d:
       composed_of:

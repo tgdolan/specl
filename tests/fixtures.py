@@ -55,6 +55,8 @@ def basic_spec_dict():
                                   'column_c': {'data_type': 'string', 'name': 'COLUMN_C'},
                                   'column_d': {'composed_of': ['column_a', 'column_b'], 'operation': 'multiply'}},
                       'file': 'source.csv'},
+            'transform': {'rows': {'dropna': 'any'},
+                          'columns': {}},
             'output': {'columns': {'COLUMN_C': {'data_type': 'int'}, 'COLUMN_D': {'data_type': 'int'}},
                        'file': 'out.csv'}}
 
