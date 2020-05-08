@@ -5,6 +5,7 @@ from functools import reduce
 
 import pytest
 from unittest.mock import patch, mock_open
+import numpy as np
 import pandas as pd
 
 from hypothesis import given, settings
@@ -12,7 +13,7 @@ from hypothesis.strategies import characters, composite, integers, lists, sample
 from hypothesis.extra import pandas as hpd
 
 from hypothesis.extra.pandas import columns, data_frames
-from specl import read_spec, read_data, build_kwargs, rename_columns
+from specl import read_spec, read_data, build_kwargs, rename_columns, dropna_rows
 from tests.fixtures import empty_csv, empty_spec, basic_spec_0, basic_spec_dict, basic_spec, write_funcs
 from tests.strategies import names, gen_columns_and_subset, gen_rando_dataframe, gen_mixed_type_dataset
 
@@ -122,6 +123,17 @@ def test_that_columns_get_renamed_per_spec(basic_spec_dict, hdf):
     assert spec == basic_spec_dict
     assert list(renamed_df.columns) == list(map(lambda col_name: col_name.upper(), list(hdf.columns)))
 
+
+def test_that_drop_na_works_for_rows(basic_spec_dict):
+    basic_dataframe = pd.DataFrame(data={'A': [1, 2], 'B': [3, np.nan]})
+    basic_spec_dict['transform']['rows']['dropna'] = 'any'
+    df_out = dropna_rows(basic_spec_dict, basic_dataframe)
+    assert df_out.shape == (1, 2)
+
+
 @given(gen_mixed_type_dataset())
-def test_something(df):
-    print(df)
+def test_that_drop_na_works_for_rows_hypothesis(basic_spec_dict, df):
+    basic_spec_dict['transform']['rows']['dropna'] = 'any'
+    df_out = dropna_rows(basic_spec_dict, df)
+    count = df.count(axis=1)
+    assert df.dropna().shape[0] == df_out.shape[0]

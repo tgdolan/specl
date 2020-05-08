@@ -5,5 +5,5 @@ __email__ = 'tgdolan@gmail.com'
 __version__ = '0.1.0'
 
 # __all__ = ['specl']
-from .specl import read_spec, read_data, build_kwargs, rename_columns, execute
+from .specl import read_spec, read_data, build_kwargs, rename_columns, execute, dropna_rows
 from .specl_decorators import log_cleanup_data
