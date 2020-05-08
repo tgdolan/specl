@@ -36,7 +36,8 @@ matrix:
 
 stages:
     - test
-    - tox
+    -   name: tox
+            if: branch = master
 
 
 before_install:
