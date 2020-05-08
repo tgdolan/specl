@@ -12,6 +12,14 @@ matrix:
                 - TOXENV=py37
             python: '3.7'
             stage: tox
+        -   env:
+                - TOXENV=py38
+                python: '3.8'
+                stage: tox
+        -   env:
+                - TOXENV=py36
+                python: '3.6'
+                stage: tox
 
         - stage: test
           python: '3.7'
@@ -28,7 +36,8 @@ matrix:
 
 stages:
     - test
-    - tox
+    -   name: tox
+            if: branch = master
 
 
 before_install:
