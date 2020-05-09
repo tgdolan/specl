@@ -124,11 +124,26 @@ def test_that_columns_get_renamed_per_spec(basic_spec_dict, hdf):
     assert list(renamed_df.columns) == list(map(lambda col_name: col_name.upper(), list(hdf.columns)))
 
 
-def test_that_drop_na_works_for_rows(basic_spec_dict):
-    basic_dataframe = pd.DataFrame(data={'A': [1, 2], 'B': [3, np.nan]})
+def test_that_drop_na_works_for_any(basic_spec_dict):
+    basic_dataframe = pd.DataFrame(data={'A': [1, np.nan, 5], 'B': [3, np.nan, np.nan]})
     basic_spec_dict['transform']['rows']['dropna'] = 'any'
-    df_out = dropna_rows(basic_spec_dict, basic_dataframe)
+    spec, df_out = dropna_rows(basic_spec_dict, basic_dataframe)
     assert df_out.shape == (1, 2)
+
+
+def test_that_drop_na_when_not_in_spec(basic_spec_dict):
+    basic_dataframe = pd.DataFrame(data={'A': [1, np.nan, 4],
+                                         'B': [3, np.nan, np.nan]})
+    del basic_spec_dict['transform']['rows']['dropna']
+    spec, df_out = dropna_rows(basic_spec_dict, basic_dataframe)
+    assert df_out.shape == (3, 2)
+
+
+def test_that_drop_na_works_for_all(basic_spec_dict):
+    basic_dataframe = pd.DataFrame(data={'A': [1, np.nan, 2], 'B': [3, np.nan, np.nan]})
+    basic_spec_dict['transform']['rows']['dropna'] = 'all'
+    spec, df_out = dropna_rows(basic_spec_dict, basic_dataframe)
+    assert df_out.shape == (2, 2)
 
 
 @given(gen_mixed_type_dataset())
