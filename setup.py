@@ -13,7 +13,7 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'fastparquet',
     'fn',
-    'luigi'
+    'luigi',
     'openpyxl',
     'pandas',
     'pyyaml',
