@@ -6,7 +6,7 @@ import logging
 from yaml import load, load_all, FullLoader
 from yaml.scanner import ScannerError
 from pandas import DataFrame, read_csv, read_excel, read_parquet
-from specl.specl_decorators import log_cleanup_data
+from specl.decorators import log_cleanup_data
 import importlib
 
 read_funcs = {'.csv': read_csv,
