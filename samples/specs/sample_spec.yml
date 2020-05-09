@@ -7,9 +7,8 @@ input:
       data_type: int
       name: COLUMN_B
     column_c:
-      data_type: string
+      data_type: int
       name: COLUMN_C
-      operation: multiply
   file: samples/data/sample1.csv
 transform:
   rows:
