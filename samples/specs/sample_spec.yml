@@ -15,6 +15,12 @@ transform:
   rows:
       dropna: any
   columns:
+    COLUMN_A:
+      dropna: all
+    COLUMN_B:
+      dropna: all
+    COLUMN_C:
+      dropna: any
     column_d:
       composed_of:
         - COLUMN_A
