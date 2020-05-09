@@ -12,6 +12,8 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'fastparquet',
+    'fn',
+    'luigi'
     'openpyxl',
     'pandas',
     'pyyaml',

@@ -9,6 +9,7 @@ from pandas import DataFrame, read_csv, read_excel, read_parquet
 from specl.decorators import log_cleanup_data
 import importlib
 
+
 read_funcs = {'.csv': read_csv,
               '.xls': read_excel,
               '.xlsx': read_excel,
@@ -43,7 +44,10 @@ def rename_columns(spec, data_frame):
 def transform_columns(spec, data_frame):
     columns = spec['transform']['columns']
 
-    for new_col, config in columns.items():
+    columns_to_transform = list(filter(lambda c: 'operation' in c[1], columns.items()))
+    print(f'columns_to_transform is: {columns_to_transform}')
+
+    for new_col, config in columns_to_transform:
         pkg, method_name = config['operation'].rsplit('.', 1)
 
         mod = importlib.import_module(pkg)
@@ -70,12 +74,12 @@ def dropna_rows(spec, data_frame):
 
 
 def execute(spec_path: str):
-    """The entry point for the data munging process"""
+    """The entry point for the data cleanup process"""
     spec = read_spec(spec_path)
     spec, df1 = read_data(spec)
     spec, df2 = rename_columns(spec, df1)
     spec, df3 = transform_columns(spec, df2)
-    print(df3)
+    return df3
 
 
 def build_kwargs(spec, ext):
