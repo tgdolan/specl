@@ -77,7 +77,7 @@ def dropna_rows(spec: Dict, data_frame: DataFrame) -> (Dict, DataFrame):
 def execute(spec_path: str):
     """The entry point for the data munging process"""
     spec = read_spec(spec_path)
-    df1 = read_data(spec)
+    spec, df1 = read_data(spec)
     spec, df2 = rename_columns(spec, df1)
     spec, df3 = transform_columns(spec, df2)
     print(df3)
