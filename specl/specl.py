@@ -86,7 +86,6 @@ def write_data(spec, data_frame):
     output_path = spec['output']['file']
     ext = Path(output_path).suffix
     kwargs = build_kwargs_write(spec, ext)
-    print(kwargs)
     write_funcs[ext](data_frame, output_path, **kwargs)
 
 

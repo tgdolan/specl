@@ -40,10 +40,6 @@ class CleanData(Task):
     def run(self):
         with self.input()['spec'].open() as s:
             spec, df = specl_execute(s.name)
-            print('---------------------------------')
-            print(f'spec before writing is: {spec}')
-            print(f'df before writing is: {df}')
-            print('---------------------------------')
             specl_write(spec, df)
 
 
