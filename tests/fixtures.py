@@ -14,6 +14,14 @@ def write_funcs():
 
 
 @pytest.fixture(scope='module')
+def read_funcs():
+    return {'.csv': read_csv,
+            '.xls': read_excel,
+            '.xlsx': read_excel,
+            '.parquet': read_parquet}
+
+
+@pytest.fixture(scope='module')
 def empty_spec():
     return ''
 
