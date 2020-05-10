@@ -2,7 +2,7 @@
 
 """Tests for `specl` package."""
 from functools import reduce
-
+import os
 import pytest
 from unittest.mock import patch, mock_open
 import numpy as np
@@ -13,7 +13,7 @@ from hypothesis.strategies import characters, composite, integers, lists, sample
 from hypothesis.extra import pandas as hpd
 
 from hypothesis.extra.pandas import columns, data_frames
-from specl import read_spec, read_data, build_kwargs, rename_columns, dropna_rows
+from specl import read_spec, read_data, build_kwargs_read, rename_columns, dropna_rows, write_data
 from tests.fixtures import empty_csv, empty_spec, basic_spec_0, basic_spec_dict, basic_spec, write_funcs
 from tests.strategies import names, gen_columns_and_subset, gen_rando_dataframe, gen_mixed_type_dataset
 
@@ -90,18 +90,18 @@ def test_that_read_function_called_with_columns_specified(tmpdir, write_funcs, b
 
 
 def test_that_build_kwargs_adds_columns_arg(basic_spec_dict):
-    kwargs = build_kwargs(basic_spec_dict, '.xlsx')
+    kwargs = build_kwargs_read(basic_spec_dict, '.xlsx')
     assert 'usecols' in list(kwargs.keys())
 
 
 def test_that_build_kwargs_adds_columns_arg_based_on_ext(basic_spec_dict):
-    kwargs = build_kwargs(basic_spec_dict, '.parquet')
+    kwargs = build_kwargs_read(basic_spec_dict, '.parquet')
     assert 'columns' in list(kwargs.keys())
 
 
 def test_that_build_kwargs_does_not_add_columns_arg_when_empty():
     spec = {'input': {'file': 'foo.txt'}}
-    kwargs = build_kwargs(spec, '.csv')
+    kwargs = build_kwargs_read(spec, '.csv')
     assert 'usecols' not in list(kwargs.keys())
 
 
@@ -137,3 +137,24 @@ def test_that_drop_na_works_for_rows_hypothesis(basic_spec_dict, df):
     df_out = dropna_rows(basic_spec_dict, df)
     count = df.count(axis=1)
     assert df.dropna().shape[0] == df_out.shape[0]
+
+
+@settings(deadline=None)
+@given(gen_columns_and_subset(), sampled_from(['.csv', '.xls', '.xlsx', '.parquet']))
+def test_write(basic_spec_dict, mocker, tmpdir, write_funcs, df_config, ext):
+    df, columns = df_config
+    tmp_file = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
+    basic_spec_dict['output']['file'] = tmp_file.strpath
+    basic_spec_dict['output']['columns'] = {}
+
+    col_specs = map(lambda c: {c: {'data_type': 'int'}}, columns)
+    # bogus, i know
+    for col in col_specs:
+        col_name = list(col.keys())[0]
+        col_spec = list(col.values())[0]
+        basic_spec_dict['output']['columns'][col_name] = col_spec
+    write_data(basic_spec_dict, df)
+
+    assert os.path.exists(basic_spec_dict['output']['file'])
+
+

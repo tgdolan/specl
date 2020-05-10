@@ -1,7 +1,10 @@
 """Luigi task for running specl"""
 
 from luigi import LocalTarget, Task, Parameter, ExternalTask, build
+from luigi.task import logger
+
 from specl import execute as specl_execute
+from specl import write_data as specl_write
 from pandas import DataFrame as pdf
 
 
@@ -36,11 +39,12 @@ class CleanData(Task):
 
     def run(self):
         with self.input()['spec'].open() as s:
-            print(f'path is: {s.name}')
-            df = specl_execute(s.name)
-            with self.output().open('w') as output:
-                print(output.name)
-                pdf.to_csv(df, output.name)
+            spec, df = specl_execute(s.name)
+            print('---------------------------------')
+            print(f'spec before writing is: {spec}')
+            print(f'df before writing is: {df}')
+            print('---------------------------------')
+            specl_write(spec, df)
 
 
 if __name__ == "__main__":

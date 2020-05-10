@@ -1,5 +1,5 @@
 """Main module."""
-from functools import reduce
+from functools import reduce, partial
 from typing import Dict, Callable
 from pathlib import Path
 import logging
@@ -9,11 +9,16 @@ from pandas import DataFrame, read_csv, read_excel, read_parquet
 from specl.decorators import log_cleanup_data
 import importlib
 
-
 read_funcs = {'.csv': read_csv,
               '.xls': read_excel,
               '.xlsx': read_excel,
               '.parquet': read_parquet}
+
+write_funcs = {'.csv': DataFrame.to_csv,
+               '.xls': DataFrame.to_excel,
+               '.xlsx': DataFrame.to_excel,
+               '.parquet': partial(DataFrame.to_parquet, compression=None)
+               }
 
 
 def read_spec(path: str) -> dict:
@@ -45,7 +50,6 @@ def transform_columns(spec, data_frame):
     columns = spec['transform']['columns']
 
     columns_to_transform = list(filter(lambda c: 'operation' in c[1], columns.items()))
-    print(f'columns_to_transform is: {columns_to_transform}')
 
     for new_col, config in columns_to_transform:
         pkg, method_name = config['operation'].rsplit('.', 1)
@@ -65,12 +69,20 @@ def read_data(spec: Dict) -> DataFrame:
 
     path = spec['input']['file']
     ext = Path(path).suffix
-    kwargs = build_kwargs(spec, ext)
+    kwargs = build_kwargs_read(spec, ext)
     return spec, read_funcs[ext](path, **kwargs)
 
 
 def dropna_rows(spec, data_frame):
     return data_frame.dropna() if spec['transform']['rows']['dropna'] == 'any' else data_frame
+
+
+def write_data(spec, data_frame):
+    output_path = spec['output']['file']
+    ext = Path(output_path).suffix
+    kwargs = build_kwargs_write(spec, ext)
+    print(kwargs)
+    write_funcs[ext](data_frame, output_path, **kwargs)
 
 
 def execute(spec_path: str):
@@ -79,10 +91,10 @@ def execute(spec_path: str):
     spec, df1 = read_data(spec)
     spec, df2 = rename_columns(spec, df1)
     spec, df3 = transform_columns(spec, df2)
-    return df3
+    return spec, df3
 
 
-def build_kwargs(spec, ext):
+def build_kwargs_read(spec, ext):
     """Builds up kwargs for the Pandas read_* functions."""
     col_arg_names = {'.parquet': 'columns',
                      '.xls': 'usecols',
@@ -93,3 +105,24 @@ def build_kwargs(spec, ext):
         kwargs[col_arg_names[ext]] = list(spec['input']['columns'].keys())
 
     return kwargs
+
+
+def build_kwargs_write(spec, ext):
+    """Builds up kwargs for the Pandas to_* functions."""
+    col_arg_names = {'.parquet': 'partition_cols',
+                     '.xls': 'columns',
+                     '.xlsx': 'columns',
+                     '.csv': 'columns'}
+    kwargs = {}
+
+    if 'columns' in list(spec['output'].keys()) and not ext == '.parquet':
+        kwargs[col_arg_names[ext]] = list(spec['output']['columns'].keys())
+
+    return kwargs
+
+
+def main(spec_path):
+    spec, df = execute(spec_path)
+    write_data(spec, df)
+
+
