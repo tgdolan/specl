@@ -5,7 +5,7 @@ from hypothesis import given
 from hypothesis.extra import pandas as hpd
 from .strategies import gen_columns_and_subset, a_b_dataframe
 
-from specl.specl_decorators import log_cleanup_data
+from specl.decorators import log_cleanup_data
 
 
 @given(a_b_dataframe)

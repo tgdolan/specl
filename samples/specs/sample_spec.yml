@@ -7,9 +7,8 @@ input:
       data_type: int
       name: COLUMN_B
     column_c:
-      data_type: string
+      data_type: int
       name: COLUMN_C
-      operation: multiply
   file: samples/data/sample1.csv
 transform:
   rows:
@@ -21,7 +20,7 @@ transform:
       dropna: all
     COLUMN_C:
       dropna: any
-    column_d:
+    COLUMN_D:
       composed_of:
         - COLUMN_A
         - COLUMN_B
@@ -32,4 +31,4 @@ output:
       data_type: int
     COLUMN_D:
       data_type: int
-  file: out.csv
+  file: samples/output/out.csv

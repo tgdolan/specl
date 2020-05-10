@@ -12,6 +12,8 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'fastparquet',
+    'fn',
+    'luigi',
     'openpyxl',
     'pandas',
     'pyyaml',
@@ -21,7 +23,7 @@ requirements = [
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest>=3', 'hypothesis', 'pytest-cov']
+test_requirements = ['pytest>=3', 'hypothesis', 'pytest-cov', 'pytest-mock']
 
 setup(
     author="Tom Dolan",

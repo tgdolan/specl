@@ -29,7 +29,7 @@ def main():
     if args.spec:
         if args.log:
             _set_log_level(args.log)
-        specl.execute(args.spec)
+        specl.main(args.spec)
         return 0
     else:
         parser.print_help(sys.stderr)
