@@ -36,7 +36,7 @@ def read_spec(path: str) -> dict:
 
 
 @log_cleanup_data
-def rename_columns(spec, data_frame):
+def rename_columns(spec: Dict, data_frame: DataFrame) -> (Dict, DataFrame):
     columns = spec['input']['columns']
     columns_to_rename = filter(lambda x: 'name' in x[1].keys(), list(columns.items()))
     column_name_keys = map(lambda col_config: {col_config[0]: col_config[1]['name']}, list(columns_to_rename))
@@ -46,7 +46,7 @@ def rename_columns(spec, data_frame):
 
 
 @log_cleanup_data
-def transform_columns(spec, data_frame):
+def transform_columns(spec: Dict, data_frame: DataFrame) -> (Dict, DataFrame):
     columns = spec['transform']['columns']
 
     columns_to_transform = list(filter(lambda c: 'operation' in c[1], columns.items()))
@@ -62,7 +62,7 @@ def transform_columns(spec, data_frame):
     return spec, data_frame
 
 
-def read_data(spec: Dict) -> DataFrame:
+def read_data(spec: Dict) -> (Dict,DataFrame):
     """Creates Pandas DataFrame by reading file at path.
        Appropriate read_* pandas method will be called based
        on the extension of the input file specified."""
@@ -73,8 +73,13 @@ def read_data(spec: Dict) -> DataFrame:
     return spec, read_funcs[ext](path, **kwargs)
 
 
-def dropna_rows(spec, data_frame):
-    return data_frame.dropna() if spec['transform']['rows']['dropna'] == 'any' else data_frame
+def dropna_rows(spec: Dict, data_frame: DataFrame) -> (Dict, DataFrame):
+    """Drops rows in data_frame based on value of transform.rows.dropna in spec."""
+    df_out = data_frame
+    if 'dropna' in spec['transform']['rows']:
+        df_out = data_frame.dropna(how=spec['transform']['rows']['dropna'])
+
+    return spec, df_out
 
 
 def write_data(spec, data_frame):
