@@ -14,7 +14,13 @@ transform:
   rows:
       dropna: any
   columns:
-    column_d:
+    COLUMN_A:
+      dropna: all
+    COLUMN_B:
+      dropna: all
+    COLUMN_C:
+      dropna: any
+    COLUMN_D:
       composed_of:
         - COLUMN_A
         - COLUMN_B
@@ -25,4 +31,4 @@ output:
       data_type: int
     COLUMN_D:
       data_type: int
-  file: out.csv
+  file: samples/output/out.csv

@@ -9,6 +9,7 @@ hypothesis = "*"
 openpyxl = "*"
 pytest = "*"
 pytest-cov = "*"
+pytest-mock = "*"
 xlrd = "*"
 xlwt = "*"
 
