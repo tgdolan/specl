@@ -149,7 +149,7 @@ def test_that_drop_na_works_for_all(basic_spec_dict):
 @given(gen_mixed_type_dataset())
 def test_that_drop_na_works_for_rows_hypothesis(basic_spec_dict, df):
     basic_spec_dict['transform']['rows']['dropna'] = 'any'
-    df_out = dropna_rows(basic_spec_dict, df)
+    spec, df_out = dropna_rows(basic_spec_dict, df)
     count = df.count(axis=1)
     assert df.dropna().shape[0] == df_out.shape[0]
 
