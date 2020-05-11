@@ -4,17 +4,23 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+fn = "*"
 hypothesis = "*"
+openpyxl = "*"
 pytest = "*"
 pytest-cov = "*"
+pytest-mock = "*"
+xlrd = "*"
+xlwt = "*"
+
 
 [packages]
+luigi = "*"
 pyyaml = "*"
 pandas = "*"
 fastparquet = "*"
-xlrd = "*"
-xlwt = "*"
-openpyxl = "*"
+
+
 
 [requires]
 python_version = "3.7"

@@ -7,21 +7,28 @@ input:
       data_type: int
       name: COLUMN_B
     column_c:
-      data_type: string
+      data_type: int
       name: COLUMN_C
-      operation: multiply
   file: samples/data/sample1.csv
 transform:
+  rows:
+      dropna: any
   columns:
-    column_d:
+    COLUMN_A:
+      dropna: all
+    COLUMN_B:
+      dropna: all
+    COLUMN_C:
+      dropna: any
+    COLUMN_D:
       composed_of:
-        - column_a
-        - column_b
-      operation: multiply
+        - COLUMN_A
+        - COLUMN_B
+      operation: operator.mul
 output:
   columns:
     COLUMN_C:
       data_type: int
     COLUMN_D:
       data_type: int
-  file: out.csv
+  file: samples/output/out.csv

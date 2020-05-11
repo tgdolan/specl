@@ -107,3 +107,5 @@ ENV/
 
 # Pomodoro tracking
 .pomodoros
+specl/scratch.py
+samples/output
