@@ -144,4 +144,13 @@ output file types are supported
 * .xlsx
 * .parquet
 
+### Credits
+
+CSCI-E 29!: Thanks, all. I feel like this class plunged me into the deep end of Python. (A good thing.)
+
+This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+
+.. _Cookiecutter: https://github.com/audreyr/cookiecutter
+.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+
 
