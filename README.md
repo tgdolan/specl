@@ -27,9 +27,9 @@ A spec-driven data cleanup library
 
 ## Overview
 
-specl is a library of functions that wrap common methods in the Pandas DataFrame API,
+specl is a library of functions for cleaning data based on information in a 'spec' file. specl wraps a subset of methods in the Pandas DataFrame API,
 supplying those methods with arguments from a YAML spec file. The intent is to
-isolate the data cleanup requirements from the code, by describing those tasks in a spec file.
+isolate the data cleanup requirements from the code and make it easier to perform common data cleanup tasks.
 
 ### Features
 
