@@ -9,13 +9,13 @@ import numpy as np
 import pandas as pd
 
 from hypothesis import given, settings
-from hypothesis.strategies import characters, composite, integers, lists, sampled_from, text
+from hypothesis.strategies import sampled_from
 from hypothesis.extra import pandas as hpd
 
 from hypothesis.extra.pandas import columns, data_frames
 from specl import read_spec, read_data, build_kwargs_read, rename_columns, dropna_rows, write_data
 from tests.fixtures import empty_csv, empty_spec, basic_spec_0, basic_spec_dict, basic_spec, write_funcs
-from tests.strategies import names, gen_columns_and_subset, gen_rando_dataframe, gen_mixed_type_dataset
+from tests.strategies import gen_columns_and_subset, gen_rando_dataframe, gen_mixed_type_dataset
 
 
 def write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext):
@@ -32,6 +32,9 @@ def test_that_load_spec_returns_empty_dict_for_empty_spec(empty_spec):
 
 
 def test_that_load_spec_returns_dict_for_basic_spec(basic_spec):
+    """ Passes the YAML contents of the basic_spec fixture to the read_spec function
+        and confirms that the resulting dictionary has the expected shape and content.
+    """
     with patch('builtins.open', new_callable=mock_open, read_data=basic_spec):
         spec = read_spec('fake/file.yaml')
 
@@ -56,7 +59,6 @@ def test_that_load_spec_raises_valueerror_for_invalid_spec(basic_spec_0):
 def test_that_read_data_returns_data_frame(tmpdir, write_funcs, basic_spec_dict, df, ext):
     """Given a Hypothesis DataFrame, save it as a file of the sampled type,
        and test the reading that file into a Pandas DataFrame works as expected."""
-    # print(f'generated dataframe has shape of: {df.shape} :: file type is: {ext}')
 
     expected = df.shape[1]
 
@@ -115,7 +117,7 @@ def test_that_columns_get_renamed_per_spec(basic_spec_dict):
 
 
 @given(gen_rando_dataframe())
-def test_that_columns_get_renamed_per_spec(basic_spec_dict, hdf):
+def test_that_generated_columns_get_renamed_per_spec(basic_spec_dict, hdf):
     rename_col_config = map(lambda x: {x: {'data_type': 'int', 'name': x.upper()}}, list(hdf.columns))
     basic_spec_dict['input']['columns'] = reduce(lambda config, col: config.update(col) or config,
                                                  list(rename_col_config))

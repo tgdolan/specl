@@ -1,11 +1,9 @@
 """Luigi task for running specl"""
 
 from luigi import LocalTarget, Task, Parameter, ExternalTask, build
-from luigi.task import logger
 
 from specl import execute as specl_execute
 from specl import write_data as specl_write
-from pandas import DataFrame as pdf
 
 
 class SpeclSpec(ExternalTask):
@@ -45,7 +43,7 @@ class CleanData(Task):
 
 if __name__ == "__main__":
     """
-    Implement main functionality here..
+    Run CleanData task.
     """
     build([
         CleanData(

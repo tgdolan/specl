@@ -1,13 +1,8 @@
 """Hypothesis strategies used to generate data for specl tests."""
-from hypothesis.strategies import characters, composite, integers, lists, sampled_from, text
+from hypothesis.strategies import composite, integers, lists, sampled_from, text
 from hypothesis.extra import pandas as hpd
-from itertools import cycle
 
 from hypothesis.extra.pandas import columns, data_frames, column, range_indexes
-
-# names = text(
-#     characters(max_codepoint=1000, blacklist_categories=('Cc', 'Cs')),
-#     min_size=1).map(lambda s: s.strip()).filter(lambda s: len(s) > 0)
 
 # random string generator to be used for column names
 names = text(alphabet=list('abcdefghijklmnopqrstuvwxyz'), min_size=1)
