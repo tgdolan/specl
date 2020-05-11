@@ -4,8 +4,11 @@ from specl import cli
 
 
 def test_that_main_returns_message_when_no_args_provided(capsys):
-    pass
-    # cli.main()
-    # console_msg = capsys.readouterr().err
+    """ Calling cli.main() without any args should result in usage message displayed to terminal.
+        Test works when running with pytest, but not pytest --cov=specl --cov-report html.
+        Need to figure out how to populate args to cli here, vs those passed in from pytest command."""
+    # result = cli.main()
     #
-    # assert 'usage' in console_msg
+    # out, err = capsys.readouterr()
+    #
+    # assert 'usage' in err
