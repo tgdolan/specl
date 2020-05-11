@@ -1,8 +1,6 @@
-import pytest
 import logging
 
 from hypothesis import given
-from hypothesis.extra import pandas as hpd
 from .strategies import gen_columns_and_subset, a_b_dataframe
 
 from specl.decorators import log_cleanup_data
@@ -14,7 +12,7 @@ def test_should_log_function_arg_and_result_stats_fog_log_level_info(caplog, dat
 
     @log_cleanup_data
     def mock_func(spec, df):
-        return spec,df
+        return spec, df
 
     mock_func(None, dataframe)
     assert 'entering mock_func:' in caplog.text
