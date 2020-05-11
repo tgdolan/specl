@@ -1,6 +1,11 @@
 # specl
 
+[![Build Status](https://travis-ci.com/tgdolan/specl.svg?branch=master)](https://travis-ci.com/tgdolan/specl)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ec16086625f4fa28cd90/maintainability)](https://codeclimate.com/github/tgdolan/specl/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/ec16086625f4fa28cd90/test_coverage)](https://codeclimate.com/github/tgdolan/specl/test_coverage)
+
 A spec-driven data cleanup library
+---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -18,8 +23,10 @@ A spec-driven data cleanup library
     - [Writing Data](#writing-data)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+---
 
 ## Overview
+
 specl is a library of functions that wrap common methods in the Pandas DataFrame API,
 supplying those methods with arguments from a YAML spec file. The intent is to
 isolate the data cleanup requirements from the code, by describing those tasks in a spec file.
@@ -39,13 +46,15 @@ specl currently supports the following data cleanup tasks:
 * Test utilizing Dask vs. Pandas for the backend data manipulation
 
 
-####Code Overview
+#### Code Overview
+
 The entry point for specl implmentation is in `specl.specl.py`.
 See the 'execute' function.
 
 The entry point for specl tests is in `tests/test_specl.py`.
 
 #### File Types Supported:
+
 .csv, .xls, .xlsx, .parquet
 
 ### Running Samples
@@ -146,7 +155,7 @@ output file types are supported
 
 ### Credits
 
-CSCI-E 29!: Thanks, all. I feel like this class plunged me into the deep end of Python. (A good thing.)
+CSCI-E 29: Thanks, all! I feel like this class plunged me into the deep end of Python. (A good thing.)
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
