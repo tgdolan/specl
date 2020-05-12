@@ -6,6 +6,7 @@ from yaml import load, FullLoader
 from yaml.scanner import ScannerError
 from pandas import DataFrame, read_csv, read_excel, read_parquet
 from specl.decorators import log_cleanup_data
+from csci_utils.io import atomic_write
 import importlib
 
 read_funcs = {'.csv': read_csv,
@@ -85,7 +86,8 @@ def write_data(spec: dict, data_frame: DataFrame):
     output_path = spec['output']['file']
     ext = Path(output_path).suffix
     kwargs = build_kwargs_write(spec, ext)
-    write_funcs[ext](data_frame, output_path, **kwargs)
+    with atomic_write(output_path, "w") as out:
+        write_funcs[ext](data_frame, out.name, **kwargs)
 
 
 def execute(spec_path: str):
