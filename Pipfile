@@ -13,15 +13,13 @@ pytest-mock = "*"
 xlrd = "*"
 xlwt = "*"
 
-
 [packages]
+atomicwrites = "*"
 luigi = "*"
 pyyaml = "*"
 pandas = "*"
 fastparquet = "*"
-
-
+specl = {editable = true,path = "."}
 
 [requires]
 python_version = "3.7"
-
