@@ -5,7 +5,7 @@ from pathlib import Path
 from yaml import load, FullLoader
 from yaml.scanner import ScannerError
 from pandas import DataFrame, read_csv, read_excel, read_parquet
-from specl.decorators import log_cleanup_data
+from . import decorators
 from csci_utils.io import atomic_write
 import importlib
 
@@ -35,7 +35,7 @@ def read_spec(path: str) -> dict:
     return spec if spec else {}
 
 
-@log_cleanup_data
+@decorators.log_cleanup_data
 def rename_columns(spec: dict, data_frame: DataFrame) -> (dict, DataFrame):
     columns = spec['input']['columns']
     columns_to_rename = filter(lambda x: 'name' in x[1].keys(), list(columns.items()))
@@ -45,7 +45,7 @@ def rename_columns(spec: dict, data_frame: DataFrame) -> (dict, DataFrame):
     return spec, df_renamed
 
 
-@log_cleanup_data
+@decorators.log_cleanup_data
 def transform_columns(spec: dict, data_frame: DataFrame) -> (dict, DataFrame):
     columns = spec['transform']['columns']
 

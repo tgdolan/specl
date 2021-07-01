@@ -16,6 +16,7 @@ xlwt = "*"
 [packages]
 atomicwrites = "*"
 luigi = "*"
+numpy = "*"
 pyyaml = "*"
 pandas = "*"
 fastparquet = "*"
