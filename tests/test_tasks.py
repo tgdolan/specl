@@ -19,10 +19,9 @@ def test_that_clean_data_task_runs():
     """ This is really more like an integration test, but wanted to get at least
         something in place to test CleanData Luigi task.
     """
-    pass
-    # luigi.build([
-    #     CleanData(
-    #         spec='samples/specs/sample_spec.yml',
-    #         data='samples/data/sample1.csv'
-    #     )], local_scheduler=True)
-    # assert os.path.exists('samples/output/out.csv')
+    luigi.build([
+        CleanData(
+            spec='../samples/specs/sample_spec.yml',
+            data='../samples/data/sample1.csv'
+        )], local_scheduler=True)
+    assert os.path.exists('../samples/output/out.csv')

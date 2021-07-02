@@ -19,9 +19,9 @@ from tests.strategies import gen_columns_and_subset, gen_rando_dataframe, gen_mi
 
 
 def write_dataframe_to_tmpdir(tmpdir, write_funcs, df, ext):
-    tmp_file = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
-    write_funcs[ext](df, tmp_file.strpath)
-    return tmp_file.strpath
+    with(tmpdir.make_numbered_dir().join(str(f'test{ext}'))) as tmp_file:
+        write_funcs[ext](df, tmp_file.strpath)
+        return tmp_file.strpath
 
 
 def test_that_load_spec_returns_empty_dict_for_empty_spec(empty_spec):
@@ -158,7 +158,7 @@ def test_that_drop_na_works_for_rows_hypothesis(basic_spec_dict, df):
 
 @settings(deadline=None)
 @given(gen_columns_and_subset(), sampled_from(['.csv', '.xls', '.xlsx', '.parquet']))
-def test_write(basic_spec_dict, mocker, tmpdir, write_funcs, df_config, ext):
+def test_write(basic_spec_dict, tmpdir, write_funcs, df_config, ext):
     df, columns = df_config
     tmp_file = tmpdir.make_numbered_dir().join(str(f'test{ext}'))
     basic_spec_dict['output']['file'] = tmp_file.strpath
@@ -173,5 +173,3 @@ def test_write(basic_spec_dict, mocker, tmpdir, write_funcs, df_config, ext):
     write_data(basic_spec_dict, df)
 
     assert os.path.exists(basic_spec_dict['output']['file'])
-
-

@@ -9,7 +9,7 @@ input:
     column_c:
       data_type: int
       name: COLUMN_C
-  file: samples/data/sample1.csv
+  file: ./samples/data/sample1.csv
 transform:
   rows:
       dropna: any
@@ -31,4 +31,4 @@ output:
       data_type: int
     COLUMN_D:
       data_type: int
-  file: samples/output/out.csv
+  file: ./samples/output/out.csv
