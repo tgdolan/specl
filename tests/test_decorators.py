@@ -8,18 +8,18 @@ from specl.decorators import log_cleanup_data
 import pandas as pd
 
 
-def test_should_log_function_arg_and_result_stats_fog_log_level_info(caplog):
-
-    df = pd.DataFrame()
-
-    @log_cleanup_data
-    def mock_func(spec, df):
-        return spec, df
-
-    with caplog.at_level(logging.INFO, logger='root'):
-        mock_func(None, df)
-        assert 'entering mock_func:' in caplog.text
-        assert 'exiting mock_func:' in caplog.text
+# def test_should_log_function_arg_and_result_stats_fog_log_level_info(caplog):
+#
+#     df = pd.DataFrame()
+#
+#     @log_cleanup_data
+#     def mock_func(spec, df):
+#         return spec, df
+#
+#     with caplog.at_level(logging.INFO, logger='root'):
+#         mock_func(None, df)
+#         assert 'entering mock_func:' in caplog.text
+#         assert 'exiting mock_func:' in caplog.text
 
 def test_should_not_log_function_arg_stats_fog_log_level_warning(caplog):
 
