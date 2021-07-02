@@ -42,6 +42,7 @@ specl currently supports the following data cleanup tasks:
 
 ##### Up Next
 
+* Re-introduce previously implemented tests
 * Add tests for cli and tasks modules
 * Filter columns based on values
 * Test utilizing Dask vs. Pandas for the backend data manipulation
