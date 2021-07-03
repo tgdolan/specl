@@ -2,8 +2,8 @@ import logging
 
 from hypothesis import given
 from strategies import gen_columns_and_subset, a_b_dataframe
+from context import specl
 
-from specl.decorators import log_cleanup_data
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ import pandas as pd
 
 def test_should_not_log_function_arg_stats_fog_log_level_warning(caplog):
 
-    @log_cleanup_data
+    @specl.decorators.log_cleanup_data.log_cleanup_data
     def mock_func(spec, df):
         return spec, df
 

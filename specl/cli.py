@@ -1,7 +1,7 @@
 """Console script for specl."""
 import argparse
 import sys
-import specl.specl as specl
+import specl
 
 import logging
 
